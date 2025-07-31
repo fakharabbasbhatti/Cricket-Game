@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Cricket Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e5799, #2989d8);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+        
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+        
+        h1 {
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .game-area {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .cricket-field {
+            width: 500px;
+            height: 500px;
+            background-color: #228B22;
+            border-radius: 50%;
+            position: relative;
+            border: 4px solid #8B4513;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pitch {
+            width: 120px;
+            height: 25px;
+            background-color: #D2B48C;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .wickets {
+            width: 12px;
+            height: 50px;
+            background: linear-gradient(to bottom, #8B4513, #A0522D);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 3px;
+        }
+        
+        .player {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .batsman {
+            background-color: #4169E1;
+            top: 48%;
+            left: 38%;
+            z-index: 10;
+        }
+        
+        .bowler {
+            background-color: #DC143C;
+            top: 48%;
+            left: 58%;
+            z-index: 10;
+        }
+        
+        .fielder {
+            background-color: #FF8C00;
+            width: 25px;
+            height: 25px;
+            font-size: 10px;
+        }
+        
+        .ball {
+            width: 10px;
+            height: 10px;
+            background-color: #FFD700;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 58%;
+            z-index: 5;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+            display: none;
+        }
+        
+        .score-panel {
+            width: 350px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .scoreboard {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .score {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #ffd700;
+        }
+        
+        .team-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .team {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            width: 48%;
+        }
+        
+        .team h3 {
+            margin-top: 0;
+            color: #ffd700;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 5px;
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #ff8c00, #ff4500);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 0 10px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 0 #cc3700, 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #cc3700, 0 7px 14px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #cc3700, 0 3px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .batting-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .batting-options button {
+            margin: 0;
+            padding: 10px;
+            font-size: 14px;
+        }
+        
+        .commentary {
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 20px;
+            min-height: 60px;
+            font-style: italic;
+            text-align: left;
+        }
+        
+        .ball-history {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .ball-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .dot-0 { background-color: #4CAF50; } /* Dot ball */
+        .dot-1 { background-color: #FFC107; } /* 1 run */
+        .dot-2 { background-color: #FF9800; } /* 2 runs */
+        .dot-4 { background-color: #2196F3; } /* 4 runs */
+        .dot-6 { background-color: #F44336; } /* 6 runs */
+        .dot-w { background-color: #9E9E9E; } /* Wicket */
+        
+        .animation-area {
+            position: relative;
+            height: 100px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        @keyframes bowl {
+            0% { left: 58%; top: 48%; }
+            100% { left: 38%; top: 48%; }
+        }
+        
+        @keyframes bat {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(30deg); }
+            100% { transform: rotate(0deg); }
+        }
+        
+        @keyframes hit {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Interactive Cricket Game</h1>
+        
+        <div class="game-area">
+            <div class="cricket-field">
+                <div class="pitch"></div>
+                <div class="wickets"></div>
+                <div class="batsman player">BAT</div>
+                <div class="bowler player">BOWL</div>
+                <div class="ball"></div>
+                <!-- Fielders will be added by JavaScript -->
+            </div>
+            
+            <div class="score-panel">
+                <div class="scoreboard">
+                    <div class="score" id="score-display">0/0 (0.0)</div>
+                    <div id="current-batsmen">Batsmen: Player1 & Player2</div>
+                    <div id="current-bowler">Bowler: Bowler1</div>
+                </div>
+                
+                <div class="team-info">
+                    <div class="team">
+                        <h3>Team A</h3>
+                        <p>Batting</p>
+                        <p id="team-a-score">Runs: 0 | Wickets: 0 | Overs: 0.0</p>
+                    </div>
+                    
+                    <div class="team">
+                        <h3>Team B</h3>
+                        <p>Bowling</p>
+                        <p id="team-b-score">Wickets: 0 | Runs: 0 | Overs: 0.0</p>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button id="start-game">Start Game</button>
+                    <button id="bowl-btn" disabled>Bowl</button>
+                </div>
+                
+                <div class="batting-options" id="batting-options" style="display: none;">
+                    <button data-shot="defense">Defense</button>
+                    <button data-shot="1">1 Run</button>
+                    <button data-shot="2">2 Runs</button>
+                    <button data-shot="4">Boundary</button>
+                    <button data-shot="6">Sixer!</button>
+                    <button data-shot="out">Risk Shot</button>
+                </div>
+                
+                <div class="commentary" id="commentary">
+                    Welcome to the cricket game! Click "Start Game" to begin.
+                </div>
+                
+                <div class="ball-history" id="ball-history">
+                    <!-- Ball dots will be added by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game variables
+        let gameStarted = false;
+        let isBatting = false;
+        let totalRuns = 0;
+        let wickets = 0;
+        let balls = 0;
+        let overs = 0;
+        let currentBatsman = "Player1";
+        let currentNonStriker = "Player2";
+        let currentBowler = "Bowler1";
+        let batsmenScores = { "Player1": 0, "Player2": 0 };
+        let bowlerStats = { "Bowler1": { runs: 0, wickets: 0, balls: 0 } };
+        let fielders = [];
+        
+        // DOM elements
+        const startGameBtn = document.getElementById('start-game');
+        const bowlBtn = document.getElementById('bowl-btn');
+        const battingOptions = document.getElementById('batting-options');
+        const scoreDisplay = document.getElementById('score-display');
+        const teamAScore = document.getElementById('team-a-score');
+        const teamBScore = document.getElementById('team-b-score');
+        const commentary = document.getElementById('commentary');
+        const ballHistory = document.getElementById('ball-history');
+        const currentBatsmenDisplay = document.getElementById('current-batsmen');
+        const currentBowlerDisplay = document.getElementById('current-bowler');
+        const cricketField = document.querySelector('.cricket-field');
+        const ball = document.querySelector('.ball');
+        const batsman = document.querySelector('.batsman');
+        
+        // Initialize fielders
+        function initializeFielders() {
+            // Remove existing fielders
+            document.querySelectorAll('.fielder').forEach(f => f.remove());
+            
+            // Fielder positions
+            const fielderPositions = [
+                { top: '20%', left: '30%', name: 'F1' },
+                { top: '20%', left: '70%', name: 'F2' },
+                { top: '50%', left: '15%', name: 'F3' },
+                { top: '50%', left: '85%', name: 'F4' },
+                { top: '80%', left: '30%', name: 'F5' },
+                { top: '80%', left: '70%', name: 'F6' }
+            ];
+            
+            // Create fielders
+            fielderPositions.forEach(pos => {
+                const fielder = document.createElement('div');
+                fielder.className = 'fielder player';
+                fielder.style.top = pos.top;
+                fielder.style.left = pos.left;
+                fielder.textContent = pos.name;
+                cricketField.appendChild(fielder);
+            });
+        }
+        
+        // Update score display
+        function updateScore() {
+            scoreDisplay.textContent = `${totalRuns}/${wickets} (${overs}.${balls})`;
+            teamAScore.textContent = `Runs: ${totalRuns} | Wickets: ${wickets} | Overs: ${overs}.${balls}`;
+            teamBScore.textContent = `Wickets: ${wickets} | Runs: ${totalRuns} | Overs: ${overs}.${balls}`;
+            currentBatsmenDisplay.textContent = `Batsmen: ${currentBatsman} (${batsmenScores[currentBatsman]}) & ${currentNonStriker} (${batsmenScores[currentNonStriker]})`;
+            currentBowlerDisplay.textContent = `Bowler: ${currentBowler} (${bowlerStats[currentBowler].wickets}/${bowlerStats[currentBowler].runs})`;
+        }
+        
+        // Add ball to history
+        function addBallToHistory(result) {
+            const ballDot = document.createElement('div');
+            ballDot.className = 'ball-dot';
+            
+            let dotClass = '';
+            let displayText = '';
+            
+            switch(result) {
+                case '0': dotClass = 'dot-0'; displayText = '•'; break;
+                case '1': dotClass = 'dot-1'; displayText = '1'; break;
+                case '2': dotClass = 'dot-2'; displayText = '2'; break;
+                case '4': dotClass = 'dot-4'; displayText = '4'; break;
+                case '6': dotClass = 'dot-6'; displayText = '6'; break;
+                case 'W': dotClass = 'dot-w'; displayText = 'W'; break;
+            }
+            
+            ballDot.classList.add(dotClass);
+            ballDot.textContent = displayText;
+            ballHistory.appendChild(ballDot);
+        }
+        
+        // Bowl animation
+        function animateBowl() {
+            ball.style.display = 'block';
+            ball.style.left = '58%';
+            ball.style.top = '48%';
+            
+            let pos = 58;
+            const animation = setInterval(() => {
+                if (pos <= 38) {
+                    clearInterval(animation);
+                    ball.style.display = 'none';
+                    
+                    // Enable batting options
+                    isBatting = true;
+                    battingOptions.style.display = 'grid';
+                    commentary.textContent = `${currentBowler} bowls to ${currentBatsman}...`;
+                } else {
+                    pos -= 2;
+                    ball.style.left = pos + '%';
+                }
+            }, 20);
+        }
+        
+        // Bat animation
+        function animateBat() {
+            batsman.style.animation = 'bat 0.3s ease';
+            setTimeout(() => {
+                batsman.style.animation = '';
+            }, 300);
+        }
+        
+        // Hit animation
+        function animateHit() {
+            ball.style.display = 'block';
+            ball.style.left = '38%';
+            ball.style.top = '48%';
+            
+            ball.style.animation = 'hit 0.5s ease';
+            setTimeout(() => {
+                ball.style.animation = '';
+                ball.style.display = 'none';
+            }, 500);
+        }
+        
+        // Process batting result
+        function processBattingResult(runs) {
+            isBatting = false;
+            battingOptions.style.display = 'none';
+            
+            // Update game state
+            balls++;
+            bowlerStats[currentBowler].balls++;
+            
+            if (balls === 6) {
+                balls = 0;
+                overs++;
+                if (overs === 20) {
+                    // Match over
+                    gameStarted = false;
+                    startGameBtn.textContent = 'Start New Game';
+                    bowlBtn.disabled = true;
+                    commentary.textContent = `Innings over! Final score: ${totalRuns}/${wickets} in 20 overs.`;
+                    return;
+                }
+                // Change ends
+                [currentBatsman, currentNonStriker] = [currentNonStriker, currentBatsman];
+                commentary.textContent += ` Over complete. ${currentBatsman} is now on strike.`;
+            }
+            
+            if (runs === 'out') {
+                wickets++;
+                bowlerStats[currentBowler].wickets++;
+                totalRuns += 0;
+                bowlerStats[currentBowler].runs += 0;
+                addBallToHistory('W');
+                commentary.textContent = `${currentBatsman} is OUT! ${currentBowler} takes the wicket.`;
+                
+                if (wickets === 10) {
+                    // All out
+                    gameStarted = false;
+                    startGameBtn.textContent = 'Start New Game';
+                    bowlBtn.disabled = true;
+                    commentary.textContent = `All out! Final score: ${totalRuns}/${wickets} in ${overs}.${balls} overs.`;
+                    return;
+                }
+                
+                // New batsman comes in
+                currentBatsman = `Player${wickets + 2}`;
+                batsmenScores[currentBatsman] = 0;
+                commentary.textContent += ` ${currentBatsman} comes to the crease.`;
+            } else {
+                const runsNum = parseInt(runs);
+                totalRuns += runsNum;
+                batsmenScores[currentBatsman] += runsNum;
+                bowlerStats[currentBowler].runs += runsNum;
+                addBallToHistory(runs);
+                
+                if (runsNum === 1 || runsNum === 3 || runsNum === 5) {
+                    // Change strike for odd runs
+                    [currentBatsman, currentNonStriker] = [currentNonStriker, currentBatsman];
+                    commentary.textContent = `${currentBatsman} scores ${runs} run. Strike changes.`;
+                } else if (runsNum === 4) {
+                    commentary.textContent = `FOUR! ${currentBatsman} hits a boundary.`;
+                } else if (runsNum === 6) {
+                    commentary.textContent = `SIX! ${currentBatsman} clears the boundary with a massive hit!`;
+                } else {
+                    commentary.textContent = `${currentBatsman} scores ${runs} runs.`;
+                }
+            }
+            
+            updateScore();
+            bowlBtn.disabled = false;
+        }
+        
+        // Event listeners
+        startGameBtn.addEventListener('click', () => {
+            if (!gameStarted) {
+                gameStarted = true;
+                totalRuns = 0;
+                wickets = 0;
+                balls = 0;
+                overs = 0;
+                currentBatsman = "Player1";
+                currentNonStriker = "Player2";
+                currentBowler = "Bowler1";
+                batsmenScores = { "Player1": 0, "Player2": 0 };
+                bowlerStats = { "Bowler1": { runs: 0, wickets: 0, balls: 0 } };
+                
+                startGameBtn.textContent = 'Reset Game';
+                bowlBtn.disabled = false;
+                battingOptions.style.display = 'none';
+                ballHistory.innerHTML = '';
+                initializeFielders();
+                updateScore();
+                commentary.textContent = "Game started! Team A is batting. Click 'Bowl' to start.";
+            } else {
+                // Reset game
+                gameStarted = false;
+                startGameBtn.textContent = 'Start Game';
+                bowlBtn.disabled = true;
+                battingOptions.style.display = 'none';
+                commentary.textContent = "Welcome to the cricket game! Click 'Start Game' to begin.";
+            }
+        });
+        
+        bowlBtn.addEventListener('click', () => {
+            if (gameStarted && !isBatting) {
+                bowlBtn.disabled = true;
+                animateBowl();
+            }
+        });
+        
+        document.querySelectorAll('.batting-options button').forEach(button => {
+            button.addEventListener('click', () => {
+                if (isBatting) {
+                    const shot = button.getAttribute('data-shot');
+                    animateBat();
+                    
+                    if (shot !== 'defense') {
+                        animateHit();
+                        
+                        // Determine if out for risk shot
+                        if (shot === 'out') {
+                            // 30% chance of getting out on risk shot
+                            if (Math.random() < 0.3) {
+                                processBattingResult('out');
+                                return;
+                            } else {
+                                // Random runs on successful risk shot
+                                const possibleRuns = [4, 6];
+                                const runs = possibleRuns[Math.floor(Math.random() * possibleRuns.length)];
+                                processBattingResult(runs.toString());
+                                return;
+                            }
+                        }
+                        
+                        processBattingResult(shot);
+                    } else {
+                        // Defense - dot ball
+                        setTimeout(() => {
+                            processBattingResult('0');
+                        }, 500);
+                    }
+                }
+            });
+        });
+        
+        // Initialize
+        initializeFielders();
+        updateScore();
+    </script>
+</body>
+</html>
